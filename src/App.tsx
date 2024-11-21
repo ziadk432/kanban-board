@@ -1,6 +1,19 @@
 import React, { useEffect, useState } from "react";
+import Card from "./components/cards";
 import { z } from "zod";
 
+// Define user interface (typescript :D)
+interface User {
+  id: string;
+  title: string;
+  name: string;
+  age: number;
+  email: string;
+  phone: string;
+  status: string;
+}
+
+// Define Zod schema for user data
 const userSchema = z.object({
   title: z.string().min(1, { message: "Title is required" }),
   name: z.string().min(1, { message: "Name is required" }),
@@ -11,42 +24,41 @@ const userSchema = z.object({
 
 function App() {
 
-  // Initialize form data and state
-  const [formData, setFormData] = useState({
+  // Initialize states
+  const [formData, setFormData] = useState({ // Set default values
+    id: "",
     title: "",
     name: "",
     age: "",
     email: "",
     phone: "",
+    status: "unclaimed",
   });
 
-  // Initialize entries and state (load from local storage)
-  const [entries, setEntries] = useState(() => {
-    // Load existing entries from localStorage or initialize as empty array
-    const savedEntries = localStorage.getItem("entries");
-    return savedEntries ? JSON.parse(savedEntries) : [];
-  });
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const statusColumns = [
+    { id: 'unclaimed', name: 'Unclaimed' },
+    { id: 'first-contact', name: 'First Contact' },
+    { id: 'preparing-work-offer', name: 'Preparing Work Offer' },
+    { id: 'send-to-therapists', name: 'Send to Therapists' }
+  ];
+  const [entries, setEntries] = useState(JSON.parse(localStorage.getItem("entries") || "[]") as User[]); // Initialize entries from localStorage 
+  const [errors, setErrors] = useState<Record<string, string>>({}); // Initialize errors
 
-  // Save entries to localStorage whenever they change
-  useEffect(() => {
-    // Save entries to localStorage whenever they change
+
+  useEffect(() => {   // Save entries to localStorage whenever they change
     localStorage.setItem("entries", JSON.stringify(entries));
   }, [entries]);
 
-  // Clear local storage (for testing purposes)
-  const clearLocalStorage = () => {
+  const clearLocalStorage = () => {   // Clear local storage (testing purposes)
     localStorage.removeItem("entries");
     setEntries([]);
   };
 
-  // Update form data when input changes
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {   // Update form data when input changes
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Handle form submission
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {   // Handle form submission
     e.preventDefault();
 
     // Validate formData using Zod
@@ -55,8 +67,8 @@ function App() {
       age: Number(formData.age), // Convert age to a number for validation
     });
 
+    // Collect errors from Zod validation
     if (!result.success) {
-      // Collect errors from Zod validation
       const fieldErrors = result.error.errors.reduce(
         (acc, err) => ({
           ...acc,
@@ -66,29 +78,60 @@ function App() {
       );
       setErrors(fieldErrors);
     } else {
-      // Clear errors and save the new entry
+      // Clear errors => save the new entry => reset the form
       setErrors({});
       setEntries([...entries, { ...formData, age: Number(formData.age) }]);
       setFormData({
+        id: "",
         title: "",
         name: "",
         age: "",
         email: "",
         phone: "",
+        status: "unclaimed",
       });
       alert("Form submitted successfully!");
     }
   };
 
+  // Drag and Drop Functions
+  const [draggedItem, setDraggedItem] = useState<User | null>(null);
+
+  const onDragStart = (e: React.DragEvent, entry: User) => {  // Set the dragged item
+    setDraggedItem(entry);
+  };
+
+  const onDrop = (e: React.DragEvent, newStatus: string) => { // Handle drop event
+    e.preventDefault(); // Prevent default behavior
+
+    if (draggedItem) {
+      // Update the entry's status
+      const updatedEntries = entries.map((entry: User) =>
+        entry.id === draggedItem.id
+          ? { ...entry, status: newStatus }
+          : entry
+      );
+
+      setEntries(updatedEntries);
+      setDraggedItem(null); // Reset dragged item after drop
+    }
+  };
+
+  const allowDrop = (e: React.DragEvent) => { // Allow drop event
+    e.preventDefault(); // Prevent default behavior (blocking drop)
+  };
+
   return (
     <div className="bg-gray-800 min-h-screen p-5">
       <button onClick={clearLocalStorage} className="fixed top-6 right-10 bg-red-600 text-white rounded-md p-2">Reset Local Storage</button>
+
       <header className="flex flex-col items-center justify-center text-2xl text-white mb-8">
         <b>Kanban Board</b>
 
       </header>
 
       <div className="flex flex-row text-white ">
+
         {/* Form Section */}
 
         <div className="flex flex-col gap-4 m-8">
@@ -164,37 +207,40 @@ function App() {
           </form>
         </div>
 
-        {/* Kanban Board Section */}
+
+
+        {/* Drag and Drop Columns */}
+
         <div className="flex flex-col w-full text-center">
           <div className="flex flex-row h-full justify-between gap-2">
-            <div className="flex-1">
-              <b>Unclaimed</b>
-              <div className="bg-blue-500 border border-white h-full mt-2">
-                {entries.map((entry, index) => (
-                  <div key={index} className="bg-white p-2 rounded-md mb-2">
-                    <p>{entry.name}</p>
-                    <p>{entry.title}</p>
-                    <p>{entry.age}</p>
-                    <p>{entry.email}</p>
-                    <p>{entry.phone}</p>
-                  </div>
-                ))}
+            {statusColumns.map((status, index: number) => (
+              <div key={index} className="flex-1">
+                <b>{status.name}</b>
+                <div
+                  className="bg-blue-500 border border-white h-full mt-2 p-2"
+                  onDragOver={allowDrop} // Allow drop event on each column
+                  onDrop={(e) => onDrop(e, status.id)}
+                >
+                  {entries
+                    .filter((entry) => entry.status === status.id)
+                    .map((entry) => (
+                      <div
+                        key={entry.id}
+                        draggable
+                        onDragStart={(e) => onDragStart(e, entry)} // Set the dragged item
+                        className="bg-white text-black p-2 m-1 rounded cursor-grab"
+                      >
+                        {entry.name} - {entry.title}
+                      </div>
+                    ))}
+                </div>
               </div>
-            </div>
-            <div className="flex-1">
-              <b>First Contact</b>
-              <div className="bg-blue-500 border border-white h-full mt-2"></div>
-            </div>
-            <div className="flex-1">
-              <b>Preparing Work Offer</b>
-              <div className="bg-blue-500 border border-white h-full mt-2"></div>
-            </div>
-            <div className="flex-1">
-              <b>Send to Therapists</b>
-              <div className="bg-blue-500 border border-white h-full mt-2"></div>
-            </div>
+            ))}
           </div>
         </div>
+
+
+
       </div>
     </div>
 
