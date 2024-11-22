@@ -40,16 +40,16 @@ You are required to use Tailwind CSS for styling throughout the project. Please 
 
 ## Tasks
 
-1. **Member Form Validations**
+1. **Member Form Validations** ---- Done
 
    - Implement form validations for each field (Name, Title, Age, Email, and Mobile Number) to ensure that correct data is entered.
    - Display relevant error and helper messages for invalid or missing inputs.
 
-2. **Create New Member Card**
+2. **Create New Member Card** ---- Done
 
    - Upon submitting the form, create a new card with the entered details and place it in the _Unclaimed_ column.
 
-3. **CRUD Operations on Member Cards**
+3. **CRUD Operations on Member Cards**  ---- Done
 
    - Implement full CRUD (Create, Read, Update, Delete) functionality for member cards.
      - **Create:** Add new member cards to the board.
@@ -57,21 +57,21 @@ You are required to use Tailwind CSS for styling throughout the project. Please 
      - **Update:** Allow editing of card details.
      - **Delete:** Enable the removal of member cards from the board.
 
-4. **Card Status Management**
+4. **Card Status Management** ---- Done
 
    - Add functionality to update the status of each card by moving it between different columns (_Unclaimed_, _First Contact_, _Preparing Work Offer_, and _Send to Therapist_).
    - **_BONUS_** Implement drag-and-drop functionality to allow users to easily change the status of a card by dragging it between columns. 
 
-5. **Persistent Data with Local Storage**
+5. **Persistent Data with Local Storage** ---- Done
 
    - Save all member card data to _local storage_ so that the board retains the cards even after a page reload.
    - Reload and display previously entered cards from _local storage_ when the page is refreshed.
 
-6. **Column Card Count**
+6. **Column Card Count** ---- Done
 
    - Each column should display the number of member cards it contains, updating dynamically as cards are added, deleted, or moved.
 
-7. **Styling**
+7. **Styling** ---- Done
    - Style the member form, card components, and board using **Tailwind CSS**.
    - Ensure the page has a clean and user-friendly design, with a focus on usability and aesthetics.
 

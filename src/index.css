@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -56,11 +58,37 @@
     --chart-5: 340 75% 55%
   }
 }
+
+/* Scrollbar styles for the div element only */
+div::-webkit-scrollbar {
+  width: 8px; /* Width of the scrollbar */
+}
+
+
+div::-webkit-scrollbar-thumb {
+  background: #a0bdd1; /* Color of the scrollbar thumb */
+  border-radius: 4px; /* Rounded corners */
+}
+
+div::-webkit-scrollbar-thumb:hover {
+  background: #a0bed1c2; /* Color when hovered */
+}
+
+div::-webkit-scrollbar-track {
+  background: #b5d9efc2; /* Background of the scrollbar track */
+  border-radius: 4px; /* Rounded corners */
+}
+
+
+
 @layer base {
   * {
     @apply border-border;
   }
   body {
     @apply bg-background text-foreground;
+    font-family: "Poppins", sans-serif;
+    font-weight: 400;
+    font-style: normal;
   }
 }
